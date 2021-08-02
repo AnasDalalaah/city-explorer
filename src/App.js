@@ -2,7 +2,7 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import Alert from 'react-bootstrap/Alert';
-import {Row,Col}from 'react-bootstrap';
+import Col from 'react-bootstrap/Col';
 import "./App.css";
 import Button from 'react-bootstrap/Button';
 
@@ -25,7 +25,7 @@ class App extends React.Component{
     let cityName=event.target.cityname.value;
     console.log({cityName})
   
-  let URL= `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${cityName}&format=json`;
+  let URL= `https://eu1.locationiq.com/v1/search.php?key=pk.ef680536825f3b302bf913f07a892636&q=${cityName}&format=json`;
 
   console.log({URL})
     try{
@@ -89,7 +89,8 @@ class App extends React.Component{
            }
 
         {this.state.show &&
-          <img src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.latitude},${this.state.longitude}&zoom=1-18`} style={{marginLeft:"450px"}}/>
+          <img src={`https://maps.locationiq.com/v3/staticmap?key=pk.ef680536825f3b302bf913f07a892636&center=
+          ${this.state.latitude},${this.state.longitude}&zoom=1-18`} style={{marginLeft:"450px"}}/>
           }
           
 
