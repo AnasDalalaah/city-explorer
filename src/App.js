@@ -1,133 +1,140 @@
-import React from 'react'
-  import Form from 'react-bootstrap/Form'
-  import axios from 'axios'
-  import Button from 'react-bootstrap/Button'
-  import Alert from 'react-bootstrap/Alert'
-  import "./App.css";
+import React from 'react';
+import axios from 'axios';
+import './App.css';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Alert from 'react-bootstrap/Alert';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Weather from './Weather';
 
-  
-  
-  class App extends React.Component{
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchQuery: '',
+      cityData: '',
+      displayMap: false,
+      errorMessage: false,
+      errorCode:'',
+      weatherItem:[],
+      showWeather:false,
+      latitude:'',
+      longitude:'',
+    }
+  }
+
+  getCity = async (event) => {
+    event.preventDefault();
+
     
-  
-    constructor(props){
-      super(props)
-      this.state ={
-         displayName:'',
-        latitude:'',
-        longitude:'', 
-        lat:'',
-        lon:'', 
-        show:false,
-        showError:false,
-      }
+    let serverRoute = process.env.REACT_APP_SERVER;
+    
+
+    // const url = `http://localhost:3001/weather?city=amman&lon=35.9239625&lat=31.9515694`;
+    
+    
+    let cityUrl = `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${this.state.searchQuery}&format=json`;
+    
       
-  
-    }
-  
-    getData=async (event)=>{
+    try {
       
-       event.preventDefault();
+
       
-       let cityName=event.target.city.value;
-      //  console.log({cityName})
-     
-       let URL= `https://us1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_SERVER_KEY}&q=${cityName}&format=json`;
-       console.log({URL})
-       let  URL1= `${process.env.REACT_APP_SERVER_URL}/data/weather?name=${cityName}`;
-        
-
-       try{
-         let locResult= await axios.get(URL);
-        
-        this.setState({
-          displayName:locResult.data[0].display_name,
-          latitude:locResult.data[0].lat,
-          longitude:locResult.data[0].lon,
-          show:true,
-          showError:false,
-
-        })
-
-          let locResult1= await axios.get(URL1);
-           
-           this.setState({
-            
-            lat:locResult1.data.lat,
-            lon:locResult1.data.lon,
-            show:true,
-            showError:false,
-        })
-       }
-       catch{
-
-        this.setState({
-          showError:true,
-       })
-       }
+      let cityResult = await axios.get(cityUrl);
       
-     
       
-      }
-  
-  render()
-  {
-  
-    return(
-          <>
-            
-                <h1 style={{ color: "black" }}>
-                  City Explorer
-                </h1>
-             
-              <Form onSubmit={this.getData} >
-                <Form.Group className="mb-3" controlId="formBasicEmail" >
-                  <Form.Label> The City Name </Form.Label>
-                  <Form.Control type="text" name='
-' placeholder="Enter City location" />
-
-                </Form.Group>
-
-
-
-                <Button variant="primary" type="submit" >
-                Explore 🛫          </Button>
-              </Form>
-
-
-
-              {this.state.showError &&
-                <Alert variant="erorr" >
-                  <Alert.Heading> 404 Doesn't exist  </Alert.Heading>
-                  <p>
-                   "           this page can't be found 404
-"
-                  </p>
-                  <hr />
-                  <p className="mb-0">
-                    Try again later on !
-                  </p>
-                </Alert>}
-
-
-              {this.state.show &&
-                <p style={{ marginLeft: "500px" }}>
-
-                  {`${this.state.displayName}: latitude: ${this.state.lat} langitude:  ${this.state.lon}`}
-
-                </p>
-              }
-
-              {this.state.show &&
-          <img src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_SERVER_KEY}&center=${this.state.latitude},${this.state.longitude}&zoom=1-18`} style={{marginLeft:"400px"}}/>
-          }
-
-<h1>All Rights Reserved &copy; 2021, ASAC, Anas F. Dalalah</h1>
-          </>
-
-        )
-      }
+ 
+      this.setState({
+        cityData: cityResult.data[0],
+        displayMap: true,
+        errorMessage: false,
+        // weatherItem:importedData.data,
+        // showWeather:true,
+        latitude: cityResult.data[0].lat,
+        longitude: cityResult.data[0].lon
+      })
+      
 
     }
+    catch(error) {
+      this.setState({
+        displayMap: false,
+        errorMessage: true,
+        errorCode: error,
+        // showWeather:false
+      })
+    }
+    try{
+      const url = `${serverRoute}/weather?city=${this.state.searchQuery}&lon=${this.state.longitude}&lat=${this.state.latitude}`;
+      let importedData = await axios.get(url);
+      
+      this.setState({
+        weatherItem:importedData.data,
+        showWeather:true,
+        // latitude: this.state.cityData.lat,
+        // longitude: this.state.cityData.lon
+      })
+
+
+    } catch(error){
+      this.setState({
+        weatherItem:error.response,
+        showWeather:false
+      })
+    }
+  }
   
+  updateSearchQuery = (event) => {
+    this.setState({
+      searchQuery: event.target.value
+    })
+  }
+
+  render() {
+    return (
+      <>
+        <h1>City Explorer</h1>
+
+        <Form onSubmit={this.getCity}>
+          <Form.Group controlId="formBasicEmail">
+            <Form.Control type="text" placeholder="Enter City Name" onChange={this.updateSearchQuery} />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Explore!
+          </Button>
+        </Form>
+
+        {this.state.displayMap &&
+
+          <Card style={{ width: '18rem' }}>
+            <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}b&center=${this.state.cityData.lat},${this.state.cityData.lon}`} />
+            <Card.Body>
+              <Card.Title>{this.state.cityData.display_name}</Card.Title>
+              <Card.Text>
+                {this.state.cityData.lat} <br></br>
+                {this.state.cityData.lon}
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        }
+
+        {this.state.errorMessage &&
+
+        <Alert variant="danger">
+        Please Enter a Valid City Name, Error Code: 
+        {this.state.errorCode.response.status}
+      </Alert>
+        }
+
+        {this.state.displayMap &&
+        <Weather weatherData={this.state.weatherItem} showWeather={this.state.showWeather}></Weather>}
+      </>
+
+    );
+  }
+}
+
 export default App;
