@@ -94,7 +94,7 @@ class App extends React.Component{
           }
           
 
-          <h1>All Rights Reserved &copy; 2021, ASAC, Anas F. Dalalah</h1>
+          <h1>All Rights Reserved &copy; ASAC, Anas F. Dalalah</h1>
           </main>
       </>
     )
