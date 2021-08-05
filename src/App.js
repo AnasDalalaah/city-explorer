@@ -1,104 +1,142 @@
 import React from 'react';
 import axios from 'axios';
 import './App.css';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import Card from 'react-bootstrap/Card';
+import Alert from 'react-bootstrap/Alert';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Map from './map'
+import Weather from './Weather';
 
 
 class App extends React.Component {
 
-
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
-      displayName: '',
-      lon: '',
-      lat: '',
-      errorMsg: 'Bad Response',
-      displayErr: false,
-      showMap: false,
-      showCard: false,
-      weatherInfoArr :'',
-
+      searchQuery: '',
+      cityData: '',
+      displayMap: false,
+      errorMessage: false,
+      errorCode:'',
+      weatherItem:[],
+      showWeather:false,
+      latitude:'',
+      longitude:'',
     }
-
   }
 
-
-  // getWeatherInfo = async () => {
-  //   let URL = `${process.env.REACT_APP_SERVER_URL}/weather?lat=a&lon=b&searchQuery=c`;
-  //   let weatherData = await axios.get(URL);
-  //   this.setState({
-  //     weatherInfoArr :weatherData.data
-  //   })
-  //    console.log(weatherData);
-  // }
-  
-
-  getLocationData = async (event) => {
+  getCity = async (event) => {
     event.preventDefault();
-    let cityName = event.target.city.value;
-    console.log(cityName);
-    let URL = `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${cityName}&format=json`;
 
+    
+    let serverRoute = process.env.REACT_APP_SERVER;
+    
 
-
-
-
+    // const url = `http://localhost:3001/weather?city=amman&lon=35.9239625&lat=31.9515694`;
+    
+    
+    let cityUrl = `https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_KEY}&q=${this.state.searchQuery}&format=json`;
+    
+      
     try {
+      
 
-      let locationResult = await axios.get(URL)
+      
+      let cityResult = await axios.get(cityUrl);
+      
+      
+ 
       this.setState({
-        displayName: locationResult.data[0].display_name,
-        lon: locationResult.data[0].lon,
-        lat: locationResult.data[0].lat,
-        showMap: true,
-        displayErr: false,
-        showCard: true
-      }
+        cityData: cityResult.data[0],
+        displayMap: true,
+        errorMessage: false,
+        // weatherItem:importedData.data,
+        // showWeather:true,
+        latitude: cityResult.data[0].lat,
+        longitude: cityResult.data[0].lon
+      })
+      
 
-      )
     }
-    catch {
+    catch(error) {
       this.setState({
-        showMap: false,
-        displayErr: true,
-        showCard: false
-      }
-      )
+        displayMap: false,
+        errorMessage: true,
+        errorCode: error,
+        // showWeather:false
+      })
     }
+    try{
+      console.log(
+        this.state.longitude
+      )  ;   
+       const url = `${serverRoute}/weather?searchQuery=${this.state.searchQuery}&lon=${this.state.longitude}&lat=${this.state.latitude}`;
+      let importedData = await axios.get(url);
+      
+      this.setState({
+        weatherItem:importedData.data,
+        showWeather:true,
+         latitude: this.state.cityData.lat,
+        longitude: this.state.cityData.lon
+      })
 
-    let uRL = `${process.env.REACT_APP_SERVER}/weather?lat=a&lon=b&searchQuery=c`;
-    let weatherData = await axios.get(uRL);
-    this.setState({
-      weatherInfoArr :weatherData.data
-    })
-     console.log(weatherData);
+
+    } catch(error){
+      this.setState({
+        weatherItem:error.response,
+        showWeather:false
+      })
+    }
   }
+  
+  updateSearchQuery = (event) => {
+    this.setState({
+      searchQuery: event.target.value
+    })
+  }
+
   render() {
     return (
       <>
         <h1>City Explorer</h1>
 
-        <form onSubmit={this.getLocationData}>
-          <input type='text' placeholder='Enter City' name='city' />
-          <button type='submit'>Explore!</button>
-        </form>
+        <Form onSubmit={this.getCity}>
+          <Form.Group controlId="formBasicEmail">
+            <Form.Control type="text" placeholder="Enter City Name" onChange={this.updateSearchQuery} />
+          </Form.Group>
+          <Button variant="primary" type="submit">
+            Explore!
+          </Button>
+        </Form>
 
-        <Map
-          displayName={this.state.displayName}
-          lon={this.state.lon}
-          lat={this.state.lat}
-          showMap={this.state.showMap}
-          displayErr={this.state.displayErr}
-          errorMsg={this.state.errorMsg}
-          showCard={this.state.showCard}
-        />
+        {this.state.displayMap &&
 
+          <Card style={{ width: '18rem' }}>
+            <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.cityData.lat},${this.state.cityData.lon}`} />
+            <Card.Body>
+              <Card.Title>{this.state.cityData.display_name}</Card.Title>
+              <Card.Text>
+                {this.state.cityData.lat} <br></br>
+                {this.state.cityData.lon}
+              </Card.Text>
+            </Card.Body>
+          </Card>
+        }
+
+        {this.state.errorMessage &&
+
+        <Alert variant="danger">
+        Please Enter a Valid City Name, Error Code: 
+        {this.state.errorCode.response.status}
+      </Alert>
+        }
+
+        {this.state.displayMap &&
+        <Weather weatherData={this.state.weatherItem} showWeather={this.state.showWeather}></Weather>}
       </>
 
-    )
-
+    );
   }
 }
 
