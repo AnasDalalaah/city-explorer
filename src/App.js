@@ -7,6 +7,7 @@ import Card from 'react-bootstrap/Card';
 import Alert from 'react-bootstrap/Alert';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Weather from './Weather';
+import Movies from './Movies';
 
 
 class App extends React.Component {
@@ -23,13 +24,15 @@ class App extends React.Component {
       showWeather:false,
       latitude:'',
       longitude:'',
+      moviesArr: [],
+      showMovies: false
+
     }
   }
 
-  getCity = async (event) => {
+  getCitylocation = async (event) => {
     event.preventDefault();
 
-    
     let serverRoute = process.env.REACT_APP_SERVER;
     
 
@@ -51,8 +54,6 @@ class App extends React.Component {
         cityData: cityResult.data[0],
         displayMap: true,
         errorMessage: false,
-        // weatherItem:importedData.data,
-        // showWeather:true,
         latitude: cityResult.data[0].lat,
         longitude: cityResult.data[0].lon
       })
@@ -64,21 +65,18 @@ class App extends React.Component {
         displayMap: false,
         errorMessage: true,
         errorCode: error,
-        // showWeather:false
       })
     }
     try{
       console.log(
         this.state.longitude
       )  ;   
-       const url = `${serverRoute}/weather?searchQuery=${this.state.searchQuery}&lon=${this.state.longitude}&lat=${this.state.latitude}`;
+       const url = `${serverRoute}/weather?city=${this.state.searchQuery}&lon=${this.state.longitude}&lat=${this.state.latitude}`;
       let importedData = await axios.get(url);
       
       this.setState({
         weatherItem:importedData.data,
         showWeather:true,
-         latitude: this.state.cityData.lat,
-        longitude: this.state.cityData.lon
       })
 
 
@@ -88,6 +86,25 @@ class App extends React.Component {
         showWeather:false
       })
     }
+
+    let movieUrl = `${serverRoute}/movie?city=${this.state.searchQuery}`;
+
+    axios
+      .get(movieUrl)
+      .then(importedMoviesData => {
+        this.setState({
+          moviesArr: importedMoviesData.data,
+          showMovies: true
+        })
+      })
+      .catch(err => {
+        this.setState({
+          showMovies: false,
+          moviesArr: err.message,
+        })
+        console.log(err.message);
+      })
+
   }
   
   updateSearchQuery = (event) => {
@@ -101,27 +118,30 @@ class App extends React.Component {
       <>
         <h1>City Explorer</h1>
 
-        <Form onSubmit={this.getCity}>
+        <Form onSubmit={this.getCitylocation}>
           <Form.Group controlId="formBasicEmail">
-            <Form.Control type="text" placeholder="Enter City Name" onChange={this.updateSearchQuery} />
+            <Form.Control type="text" placeholder="Enter City location" onChange={this.updateSearchQuery} />
           </Form.Group>
           <Button variant="primary" type="submit">
-            Explore!
+            Explore🛫
           </Button>
         </Form>
 
         {this.state.displayMap &&
 
-          <Card style={{ width: '18rem' }}>
+          <Card style={{ width: '35rem',display:'flex'}}>
             <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.cityData.lat},${this.state.cityData.lon}`} />
             <Card.Body>
-              <Card.Title>{this.state.cityData.display_name}</Card.Title>
+              <Card.Title><h2>The City Name:{this.state.cityData.display_name}</h2> 
+              </Card.Title>
               <Card.Text>
-                {this.state.cityData.lat} <br></br>
-                {this.state.cityData.lon}
+              <h2>The Latitude:{this.state.cityData.lat} </h2><br></br>
+              <h2>The Longitude:{this.state.cityData.lon} </h2>
+                
               </Card.Text>
             </Card.Body>
           </Card>
+      
         }
 
         {this.state.errorMessage &&
@@ -132,8 +152,16 @@ class App extends React.Component {
       </Alert>
         }
 
-        {this.state.displayMap &&
-        <Weather weatherData={this.state.weatherItem} showWeather={this.state.showWeather}></Weather>}
+{this.state.displayMap &&
+
+          <Weather weatherData={this.state.weatherItem} showWeather={this.state.showWeather}></Weather>
+          }
+
+{this.state.displayMap &&
+<Movies moviesData={this.state.moviesArr} showMovies={this.state.showMovies}></Movies>}
+
+     
+        <h1>All Rights Reserved &copy; 2021, ASAC, Anas F. Dalalah</h1>
       </>
 
     );
