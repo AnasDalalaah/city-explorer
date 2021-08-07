@@ -86,24 +86,22 @@ class App extends React.Component {
         showWeather:false
       })
     }
+    try{
+      let movieUrl = `${serverRoute}/movie?city=${this.state.searchQuery}`;
+      let importedMoviesData = await axios.get(movieUrl);
+      this.setState({
+              moviesArr: importedMoviesData.data,
+              showMovies: true
+            })
 
-    let movieUrl = `${serverRoute}/movie?city=${this.state.searchQuery}`;
+    }catch (error){
+      this.setState({
+              showMovies: false,
+              moviesArr: error.message,
+            })
 
-    axios
-      .get(movieUrl)
-      .then(importedMoviesData => {
-        this.setState({
-          moviesArr: importedMoviesData.data,
-          showMovies: true
-        })
-      })
-      .catch(err => {
-        this.setState({
-          showMovies: false,
-          moviesArr: err.message,
-        })
-        console.log(err.message);
-      })
+    }
+    
 
   }
   
@@ -147,7 +145,7 @@ class App extends React.Component {
         {this.state.errorMessage &&
 
         <Alert variant="danger">
-        Please Enter a Valid City Name, Error Code: 
+        Please Enter acorrect City Name, Error Code: 
         {this.state.errorCode.response.status}
       </Alert>
         }

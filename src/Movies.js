@@ -4,12 +4,18 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Movies extends React.Component {
 
-   
+    // constructor(props) {
+    //     super(props);
+    //     this.state = {
+    //         weatherArray: this.props.weatherData
+    //     }
+    // }
+
     render() {
         return (
             <>
                 {this.props.moviesData.length!== 0 && this.props.showMovies &&
-                 
+
                     <ListGroup>
                         <ListGroup.Item>Top Movie</ListGroup.Item>
                         <ListGroup.Item variant="primary">Title: {this.props.moviesData[0].title}</ListGroup.Item>
