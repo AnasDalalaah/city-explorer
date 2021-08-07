@@ -130,11 +130,11 @@ class App extends React.Component {
           <Card style={{ width: '35rem',display:'flex'}}>
             <Card.Img variant="top" src={`https://maps.locationiq.com/v3/staticmap?key=${process.env.REACT_APP_KEY}&center=${this.state.cityData.lat},${this.state.cityData.lon}`} />
             <Card.Body>
-              <Card.Title><h2>The City Name:{this.state.cityData.display_name}</h2> 
+              <Card.Title>The City Name:{this.state.cityData.display_name} 
               </Card.Title>
               <Card.Text>
-              <h2>The Latitude:{this.state.cityData.lat} </h2><br></br>
-              <h2>The Longitude:{this.state.cityData.lon} </h2>
+              The Latitude:{this.state.cityData.lat} <br></br>
+              The Longitude:{this.state.cityData.lon} 
                 
               </Card.Text>
             </Card.Body>
