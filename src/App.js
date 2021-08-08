@@ -73,7 +73,8 @@ class App extends React.Component {
       )  ;   
        const url = `${serverRoute}/weather?city=${this.state.searchQuery}&lon=${this.state.longitude}&lat=${this.state.latitude}`;
       let importedData = await axios.get(url);
-      
+      console.log(importedData.data,'Anas');
+
       this.setState({
         weatherItem:importedData.data,
         showWeather:true,
@@ -89,6 +90,7 @@ class App extends React.Component {
     try{
       let movieUrl = `${serverRoute}/movie?city=${this.state.searchQuery}`;
       let importedMoviesData = await axios.get(movieUrl);
+      console.log(importedMoviesData.data)
       this.setState({
               moviesArr: importedMoviesData.data,
               showMovies: true

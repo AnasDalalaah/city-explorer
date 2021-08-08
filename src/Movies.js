@@ -19,7 +19,8 @@ class Movies extends React.Component {
                         <ListGroup.Item variant="warning">Image Url: {this.props.moviesData[0].image_url}</ListGroup.Item>
                         <ListGroup.Item variant="info">Popularity: {this.props.moviesData[0].popularity}</ListGroup.Item>
                         <ListGroup.Item variant="light">Release Date: {this.props.moviesData[0].released_on}</ListGroup.Item>
-                    </ListGroup>
+                       { console.log(this.props.moviesDatamo)
+                        }                    </ListGroup>
                 }
                 {this.props.showMovies === false &&
 
